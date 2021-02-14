@@ -4,14 +4,19 @@
 
 #include <chrono>
 #include <iostream>
+#include <fstream>
 #include "feature.h"
 #include <vector>
+#include <sstream>
+#include <string>
 
 using namespace std;
 using namespace std::chrono;
 using namespace lqf::encsel;
 
-int main() {
+int main(int argc, char **argv) {
+
+    std::ifstream infile(argv[1]);
 
     std::vector<unique_ptr<Feature>> features;
     features.push_back(unique_ptr<Feature>(new Sparsity()));
@@ -26,12 +31,13 @@ int main() {
 
     auto start = high_resolution_clock::now();
 
-    for (int i = 0; i < 100000; ++i) {
-        auto s = to_string(i+1000000);
+    std::string line;
+    while (std::getline(infile, line)) {
         for (auto &f: features) {
-            f->Add(s);
+            f->Add(line);
         }
     }
+
     for (auto &f: features) {
         f->Close(recorder);
     }

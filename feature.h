@@ -21,6 +21,8 @@ namespace lqf {
         };
 
         class MemFeatureRecorder : public FeatureRecorder {
+        protected:
+            std::vector<double> values_;
         public:
             void Record(std::string name, double value) override;
         };
@@ -71,6 +73,8 @@ namespace lqf {
             uint32_t counter_;
             google::dense_hash_set<std::string> dict_;
         public:
+            Distinct();
+
             void Add(std::string data) override;
 
             void Close(FeatureRecorder &) override;
@@ -97,6 +101,33 @@ namespace lqf {
             void UpdateWindow();
         public:
             Sortness(uint32_t window_size);
+
+            void Add(std::string data) override;
+
+            void Close(FeatureRecorder &) override;
+
+            // Comparator for sort
+            bool operator()(uint32_t, uint32_t);
+        };
+
+        class StrSortness : public Feature {
+        protected:
+            double selection_;
+            std::mt19937 mt_rand_;
+            std::uniform_real_distribution<double> unif_;
+            bool sample_current_ = true;
+            uint32_t window_size_;
+            uint32_t window_counter_ = 0;
+            std::vector<std::string> window_buffer_;
+
+            uint32_t total_pair_ = 0;
+            uint32_t inverted_pair_ = 0;
+            uint32_t counter_ = 0;
+            uint32_t rankdiff_ = 0;
+
+            void UpdateWindow();
+        public:
+            StrSortness(uint32_t window_size);
 
             void Add(std::string data) override;
 
