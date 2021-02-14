@@ -15,7 +15,7 @@ int main() {
 
     std::vector<unique_ptr<Feature>> features;
     features.push_back(unique_ptr<Feature>(new Sparsity()));
-    features.push_back(unique_ptr<Feature>(new Entropy()));
+    features.push_back(unique_ptr<Feature>(new Entropy(0)));
     features.push_back(unique_ptr<Feature>(new Length()));
     features.push_back(unique_ptr<Feature>(new Distinct()));
     features.push_back(unique_ptr<Feature>(new Sortness(50)));

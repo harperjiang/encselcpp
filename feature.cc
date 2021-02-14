@@ -25,7 +25,7 @@ namespace lqf {
             recorder.Record("ratio", ((double) empty_counter_) / counter_);
         }
 
-        Entropy::Entropy() {
+        Entropy::Entropy(double ratio) : ratio_(ratio), mt_rand_(time(0)), unif_(0.0, 1.0) {
             counter_ = (uint32_t *) aligned_alloc(64, sizeof(uint32_t) * 256);
             memset(counter_, 0, sizeof(uint32_t) * 256);
             line_counter_ = (uint32_t *) aligned_alloc(64, sizeof(uint32_t) * 256);
@@ -43,16 +43,18 @@ namespace lqf {
                 line_counter_[(uint8_t) c] += 1;
             }
             // Compute line entropy
-//            double sum = 0;
-//            for (int i = 0; i < 256; ++i) {
-//                sum += line_counter_[i];
-//            }
-//            double entropy = 0;
-//            for (int i = 0; i < 256; ++i) {
-//                double p = line_counter_[i] / sum;
-//                entropy += -p * log2(p);
-//            }
-//            line_entropy_.push_back(entropy);
+            if (data.length() != 0 && unif_(mt_rand_) < ratio_) {
+                double sum = 0;
+                for (int i = 0; i < 256; ++i) {
+                    sum += line_counter_[i];
+                }
+                double entropy = 0;
+                for (int i = 0; i < 256; ++i) {
+                    double p = line_counter_[i] / sum;
+                    entropy += -p * log2(p);
+                }
+                line_entropy_.push_back(entropy);
+            }
         }
 
         void Entropy::Close(FeatureRecorder &recorder) {
@@ -69,24 +71,24 @@ namespace lqf {
 
             recorder.Record("entropy", entropy);
 
-//            double lmax = -1;
-//            double lmin = INT32_MAX;
-//            double lsum = 0;
-//            for (auto &l: line_entropy_) {
-//                lmax = l > lmax ? l : lmax;
-//                lmin = l < lmin ? l : lmin;
-//                lsum += l;
-//            }
-//            double lmean = lsum / line_entropy_.size();
-//            double var = 0;
-//            for (auto &l : line_entropy_) {
-//                var += (l - lmean) * (l - lmean);
-//            }
-//
-//            recorder.Record("lmax", lmax);
-//            recorder.Record("lmin", lmin);
-//            recorder.Record("lmean", lmin);
-//            recorder.Record("lvar", var);
+            double lmax = -1;
+            double lmin = INT32_MAX;
+            double lsum = 0;
+            for (auto &l: line_entropy_) {
+                lmax = l > lmax ? l : lmax;
+                lmin = l < lmin ? l : lmin;
+                lsum += l;
+            }
+            double lmean = lsum / line_entropy_.size();
+            double var = 0;
+            for (auto &l : line_entropy_) {
+                var += (l - lmean) * (l - lmean);
+            }
+
+            recorder.Record("lmax", lmax);
+            recorder.Record("lmin", lmin);
+            recorder.Record("lmean", lmin);
+            recorder.Record("lvar", var);
         }
 
         void Length::Add(std::string data) {
@@ -188,7 +190,7 @@ namespace lqf {
         }
 
         StrSortness::StrSortness(uint32_t window_size) : mt_rand_(time(0)), unif_(0.0, 1.0),
-                                                   window_size_(window_size) {
+                                                         window_size_(window_size) {
             selection_ = 2.0 / window_size_;
             sample_current_ = unif_(mt_rand_) < selection_;
         }

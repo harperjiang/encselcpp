@@ -48,9 +48,12 @@ namespace lqf {
         protected:
             uint32_t *line_counter_;
             uint32_t *counter_;
+            double ratio_;
+            std::mt19937 mt_rand_;
+            std::uniform_real_distribution<double> unif_;
             std::vector<double> line_entropy_;
         public:
-            Entropy();
+            Entropy(double ratio);
 
             virtual ~Entropy();
 

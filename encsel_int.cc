@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
 
     std::vector<unique_ptr<Feature>> features;
     features.push_back(unique_ptr<Feature>(new Sparsity()));
-    features.push_back(unique_ptr<Feature>(new Entropy()));
+    features.push_back(unique_ptr<Feature>(new Entropy(0.1)));
     features.push_back(unique_ptr<Feature>(new Length()));
     features.push_back(unique_ptr<Feature>(new Distinct()));
     features.push_back(unique_ptr<Feature>(new Sortness(50)));
